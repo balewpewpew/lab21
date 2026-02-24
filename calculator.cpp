@@ -1,13 +1,88 @@
 #include <windows.h>
+#include <stdio.h>
+
+using namespace std;
+HWND textfield,button1,button2,button3,button4;
+HWND textbox1,textbox2;
+char num1[20];
+char num2[20];
+char result[50];
+double n1,n2;
 
 /* This is where all the input to the window goes to */
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	switch(Message) {
-		
+		case WM_CREATE:
+		textfield = CreateWindowA("Static","Please input two numbers",
+			WS_VISIBLE | WS_CHILD,
+			20,20,188,25,
+			hwnd,NULL,NULL,NULL);
+		textbox1 = CreateWindowA("EDIT","",
+			WS_BORDER | WS_CHILD | WS_VISIBLE,
+			50,50,130,25,
+			hwnd,NULL,NULL,NULL);
+		textbox2 = CreateWindowA("EDIT","",
+			WS_BORDER | WS_CHILD | WS_VISIBLE,
+			50,85,130,25,
+			hwnd,NULL,NULL,NULL);
+		button1 = CreateWindowA("Button","+",
+			WS_VISIBLE | WS_CHILD | WS_BORDER,
+			60,120,20,20,
+			hwnd,(HMENU) 1,NULL,NULL);
+		button2 = CreateWindowA("Button","-",
+			WS_VISIBLE | WS_CHILD | WS_BORDER,
+			90,120,20,20,
+			hwnd,(HMENU) 2,NULL,NULL);
+		button3 = CreateWindowA("Button","*",
+			WS_VISIBLE | WS_CHILD | WS_BORDER,
+			120,120,20,20,
+			hwnd,(HMENU) 3,NULL,NULL);
+		button4 = CreateWindowA("Button","/",
+			WS_VISIBLE | WS_CHILD | WS_BORDER,
+			150,120,20,20,
+			hwnd,(HMENU) 4,NULL,NULL);
+		break;
+
+		case WM_COMMAND:
+		GetWindowTextA(textbox1,num1,20);
+		GetWindowTextA(textbox2,num2,20);
+		n1 = atof(num1);
+		n2 = atof(num2);
+		switch(LOWORD(wParam)){
+			case 1:{
+				double sum = n1+n2;
+				sprintf(result,"%f",sum);
+				::MessageBeep(MB_ICONERROR);
+				::MessageBoxA(hwnd,result,"Result",MB_OK);
+				break;
+			}
+			case 2:{
+				double minus = n1-n2;
+				sprintf(result,"%f",minus);
+				::MessageBeep(MB_ICONERROR);
+				::MessageBoxA(hwnd,result,"Result",MB_OK);
+				break;
+			}
+			case 3:{
+				double multi = n1*n2;
+				sprintf(result,"%f",multi);
+				::MessageBeep(MB_ICONERROR);
+				::MessageBoxA(hwnd,result,"Result",MB_OK);
+				break;
+			}
+			case 4:{
+				double div = n1/n2;
+				sprintf(result,"%f",div);
+				::MessageBeep(MB_ICONERROR);
+				::MessageBoxA(hwnd,result,"Result",MB_OK);
+				break;
+			}	
+		}
+		break;
 		/* Upon destruction, tell the main thread to stop */
 		case WM_DESTROY: {
-			PostQuitMessage(0);
-			break;
+		PostQuitMessage(0);
+		break;
 		}
 		
 		/* All other messages (a lot of them) are processed using default procedures */
@@ -19,7 +94,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 
 /* The 'main' function of Win32 GUI programs: this is where execution starts */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	WNDCLASSEX wc; /* A properties struct of our window */
+	WNDCLASSEXA wc; /* A properties struct of our window */
 	HWND hwnd; /* A 'HANDLE', hence the H, or a pointer to our window */
 	MSG msg; /* A temporary location for all messages */
 
@@ -31,25 +106,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wc.hCursor	 = LoadCursor(NULL, IDC_ARROW);
 	
 	/* White, COLOR_WINDOW is just a #define for a system color, try Ctrl+Clicking it */
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.hbrBackground = CreateSolidBrush(RGB(255, 98, 8));
 	wc.lpszClassName = "WindowClass";
 	wc.hIcon	 = LoadIcon(NULL, IDI_APPLICATION); /* Load a standard icon */
 	wc.hIconSm	 = LoadIcon(NULL, IDI_APPLICATION); /* use the name "A" to use the project icon */
 
-	if(!RegisterClassEx(&wc)) {
-		MessageBox(NULL, "Window Registration Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+	if(!RegisterClassExA(&wc)) {
+		MessageBoxA(NULL, "Window Registration Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 
-	hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,"WindowClass","Caption",WS_VISIBLE|WS_OVERLAPPEDWINDOW,
+	hwnd = CreateWindowExA(WS_EX_CLIENTEDGE,"WindowClass","My Calculator",
+		WS_VISIBLE|WS_CAPTION|WS_SYSMENU, 
 		CW_USEDEFAULT, /* x */
 		CW_USEDEFAULT, /* y */
-		640, /* width */
-		480, /* height */
+		250, /* width */
+		200, /* height */
 		NULL,NULL,hInstance,NULL);
 
 	if(hwnd == NULL) {
-		MessageBox(NULL, "Window Creation Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
+		MessageBoxA(NULL, "Window Creation Failed!","Error!",MB_ICONEXCLAMATION|MB_OK);
 		return 0;
 	}
 
